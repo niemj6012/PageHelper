@@ -47,15 +47,25 @@ public class OracleRowBoundsDialect extends AbstractRowBoundsDialect {
             sqlBuilder.append(" SELECT TMP_PAGE.*, ROWNUM ROW_ID FROM ( ");
         }
         sqlBuilder.append(sql);
-        if (endRow > 0) {
-            sqlBuilder.append(" ) TMP_PAGE WHERE ROWNUM <= ");
-            sqlBuilder.append(endRow);
-            pageKey.update(endRow);
-        }
-        if (startRow > 0) {
+        if (endRow > 0 && startRow > 0) {
+            sqlBuilder.append(" ) TMP_PAGE ");
             sqlBuilder.append(" ) WHERE ROW_ID > ");
             sqlBuilder.append(startRow);
             pageKey.update(startRow);
+            sqlBuilder.append(" AND ROW_ID <= ");
+            sqlBuilder.append(endRow);
+            pageKey.update(endRow);
+        } else {
+            if (endRow > 0) {
+                sqlBuilder.append(" ) TMP_PAGE WHERE ROWNUM <= ");
+                sqlBuilder.append(endRow);
+                pageKey.update(endRow);
+            }
+            if (startRow > 0) {
+                sqlBuilder.append(" ) WHERE ROW_ID > ");
+                sqlBuilder.append(startRow);
+                pageKey.update(startRow);
+            }
         }
         return sqlBuilder.toString();
     }
